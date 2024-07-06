@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPLaboratorioIII</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+            background-color: #f2f2f2; 
+            margin: 0;
+        }
+        .spinner-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); 
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .spinner {
+            border: 16px solid #f3f3f3; 
+            border-top: 16px solid #3498db; 
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        table {
+            width: 90%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #ffffff; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+        }
+        th, td {
+            border: 1px solid #dddddd; 
+            padding: 10px;
+            text-align: center; 
+        }
+        th {
+            background-color: #f2f2f2; 
+        }
+        #formLista {
+            text-align: center; 
+            background-color: #ffffff; 
+            padding: 20px;
+            border: 1px solid #cccccc; 
+            width: 50%;
+            margin: 20px auto;
+        }
+
+        #formABM {
+            display: none;
+            text-align: left;
+            background-color: #ffffff; 
+            padding: 20px;
+            border: 1px solid #cccccc; 
+            width: 50%;
+            margin: 20px auto;
+        }
+
+        #agregarElementoButton {
+            margin-top: 30px;
+            background-color: #4CAF50; 
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        #agregarElementoButton:hover {
+            background-color: #45a049; 
+        }
+
+        #camposExtranjero {
+            display: none;
+        }
+
+        /* Estilos para los botones */
+        button {
+            padding: 10px 20px;
+            background-color: #f44336; 
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #da190b; 
+        }
+
+        /* Estilo específico para el botón Cancelar en el formulario ABM */
+        #buttonCancelarABM {
+            background-color: #bbbbbb; 
+        }
+
+        #buttonCancelarABM:hover {
+            background-color: #999999; 
+        }
+
+        /* Estilos para los inputs */
+        input[type="text"], select {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #cccccc; 
+            font-size: 14px;
+        }
+
+        /* Estilos para los labels */
+        label {
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        /* Estilo para el título del formulario ABM */
+        #formABM h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333333;
+        }
+
+        /* Estilos para los divs de campos */
+        #camposCiudadano, #camposExtranjero {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <form id="formLista">
+        <h1>Formulario Lista</h1>
+        <table id="tablaPersonas">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>FechaNacimiento</th>
+                <th>Dni</th>
+                <th>PaisOrigen</th>
+                <th>Modificar</th>
+                <th>Eliminar</th>
+            </tr>
+        </table>
+        <button id="agregarElementoButton" onclick="limpiarFormulario();ocultarFormularioLista('Alta');" type="button">Agregar Elemento</button>
+    </form>
+    
+    <form id="formABM">
+        <h2 id="formTitulo">Formulario ABM</h2>
+        <div>
+            <label for="id">ID:</label>
+            <input type="text" id="idABM" readonly><br><br>
+        </div>
+            
+        
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombreABM" required><br><br>
+        <label for="apellido">Apellido:</label>
+        <input type="text" id="apellidoABM" required><br><br>
+        <label for="fechaNacimiento">FechaNacimiento:</label>
+        <input type="text" id="fechaNacimientoABM" required><br><br>
+        <label for="tipo">Tipo:</label>
+        <select id="selectTipo" onchange="mostrarCampos()">
+            <option value="ciudadanoABM" selected>Ciudadano</option>
+            <option value="extranjeroABM">Extranjero</option>
+        </select><br><br>
+        <div id="camposCiudadano">
+            <label for="dni">Dni:</label>
+            <input type="text" id="dniABM"><br><br>
+        </div>
+
+        <div id="camposExtranjero">
+            <label for="paisOrigen">PaisOrigen:</label>
+            <input type="text" id="paisOrigenABM"><br><br>
+        </div>
+        
+        <button type="button" id="buttonAceptarABM" onclick="if(validarCampos()) ejecutarAccion()">Aceptar</button>
+        <button type="button" id="buttonCancelarABM" onclick="ocultarFormularioABM(); limpiarFormulario();" >Cancelar</button>
+    </form>
+
+    <div class="spinner-overlay" id="spinnerOverlay">
+        <div class="spinner"></div>
+    </div>
+    
+    <script>
+        let datosCargados = false;
+        document.addEventListener('DOMContentLoaded', function() {
+            obtenerDatos();
+        });
+        let listaPersonas = [];
+        
+        class Persona {
+            constructor(id, nombre, apellido, fechaNacimiento) {
+                this.id = id;
+                this.nombre = nombre;
+                this.apellido = apellido;
+                this.fechaNacimiento = fechaNacimiento;
+            }
+
+            toString() {
+                return `${this.id}, ${this.nombre}, ${this.apellido}, ${this.fechaNacimiento}`;
+            }
+
+            toJson() {
+                return JSON.stringify({
+                    id: this.id,
+                    nombre: this.nombre,
+                    apellido: this.apellido,
+                    edad: this.fechaNacimiento
+                });
+            }
+        }
+
+        class Ciudadano extends Persona {
+            constructor(id, nombre, apellido, fechaNacimiento,dni) {
+                super(id, nombre, apellido, fechaNacimiento);
+                this.dni = dni;
+            }
+
+            toString() {
+                return `${super.toString()}, ${this.dni}`;
+            }
+
+            toJson() {
+                return JSON.stringify({
+                    id: this.id,
+                    nombre: this.nombre,
+                    apellido: this.apellido,
+                    fechaNacimiento: this.fechaNacimiento,
+                    dni: this.dni
+                });
+            }
+        }
+
+        class Extranjero extends Persona {
+            constructor(id, nombre, apellido,fechaNacimiento,paisOrigen) {
+                super(id, nombre, apellido, fechaNacimiento);
+                this.paisOrigen = paisOrigen;
+            }
+
+            toString() {
+                return `${super.toString()}, ${this.compras}, ${this.telefono}`;
+            }
+
+            toJson() {
+                return JSON.stringify({
+                    id: this.id,
+                    nombre: this.nombre,
+                    apellido: this.apellido,
+                    fechaNacimiento: this.fechaNacimiento,
+                    paisOrigen: this.paisOrigen
+                });
+            }
+        }
+
+        function agregarElemento() {
+            const id = document.getElementById('id').value;
+            const nombre = document.getElementById('nombre').value;
+            const apellido = document.getElementById('apellido').value;
+            const fechaNacimiento = document.getElementById('fechaNacimiento').value;
+            const dni = document.getElementById('dni').value;
+            const paisOrigen = document.getElementById('paisOrigen').value;
+
+            let nuevaPersona;
+
+            if (dni) {
+                nuevaPersona = new Ciudadano(id, nombre, apellido, fechaNacimiento,dni);
+            } else if (compras && telefono) {
+                nuevaPersona = new Extranjero(id, nombre, apellido, fechaNacimiento,paisOrigen);
+            }
+
+            listaPersonas.push(nuevaPersona);
+            actualizarTabla();
+        }
+
+        function actualizarTabla() {
+            const tabla = document.getElementById('tablaPersonas');
+            tabla.innerHTML = `
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>FechaNacimiento</th>
+                    <th>Dni</th>
+                    <th>PaisOrigen</th>
+                    <th>Modificar</th>
+                    <th>Eliminar</th>
+                </tr>
+            `;
+
+            console.log(listaPersonas);
+            listaPersonas.forEach((persona, index) => {
+                let fila = `
+                    <tr>
+                        <td>${persona.id}</td>
+                        <td>${persona.nombre}</td>
+                        <td>${persona.apellido}</td>
+                        <td>${persona.fechaNacimiento}</td>
+                        <td>${persona.dni || 'N/A'}</td>
+                        <td>${persona.paisOrigen || 'N/A'}</td>
+                        <td><button type="button" onclick="abrirFormularioABMConCampos(${index},'Modificar')">Modificar</button></td>
+                        <td><button type="button" onclick="abrirFormularioABMConCampos(${index},'Eliminar')">Eliminar</button></td>
+                    </tr>
+                `;
+                tabla.innerHTML += fila;
+            });
+        }
+
+        function obtenerDatos() {
+            if(datosCargados) return;
+            mostrarSpinner();
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://examenesutn.vercel.app/api/PersonaCiudadanoExtranjero', true);
+            xhr.onload = function() {
+                ocultarSpinner();
+                if (xhr.status === 200) {
+                    const data = JSON.parse(xhr.responseText);
+                    listaPersonas = data.map(persona => {
+                        if (persona.dni !== undefined) {
+                            return new Ciudadano(persona.id, persona.nombre, persona.apellido, persona.fechaNacimiento, persona.dni);
+                        } else if (persona.paisOrigen !== undefined) {
+                            return new Extranjero(persona.id, persona.nombre, persona.apellido, persona.fechaNacimiento, persona.paisOrigen);
+                        }
+                    });
+                    actualizarTabla();
+                    datosCargados = true;
+                } else {
+                    alert('Error al obtener los datos.');
+                }
+            };
+            xhr.send();
+        }
+
+        function mostrarSpinner() {
+            document.getElementById('spinnerOverlay').style.display = 'flex';
+        }
+
+        function ocultarSpinner() {
+            document.getElementById('spinnerOverlay').style.display = 'none';
+        }
+
+        function cambiarTitulo(titulo) {
+            document.getElementById('formTitulo').textContent = titulo;
+        }
+
+        function ocultarFormularioLista($tipoOperacion){
+            document.getElementById('formLista').style.display = 'none';
+            cambiarTitulo($tipoOperacion);
+            document.getElementById('formABM').style.display = 'block';
+        }
+
+        function ocultarFormularioABM(){
+            document.getElementById('formABM').style.display = 'none';
+            document.getElementById('formLista').style.display = 'block';
+        }
+
+
+        async function Alta() {
+            mostrarSpinner();
+
+            const nombre = document.getElementById('nombreABM').value;
+            const apellido = document.getElementById('apellidoABM').value;
+            const fechaNacimiento = document.getElementById('fechaNacimientoABM').value;
+            const dni = document.getElementById('dniABM').value;
+            const paisOrigen = document.getElementById('paisOrigenABM').value;
+
+            const tipo = document.getElementById('selectTipo').value;
+            let nuevaPersona;
+
+            if (tipo === 'ciudadanoABM') {
+                nuevaPersona = {
+                    nombre: nombre,
+                    apellido: apellido,
+                    fechaNacimiento: fechaNacimiento,
+                    dni: dni
+                };
+            } else if (tipo === 'extranjeroABM') {
+                nuevaPersona = {
+                    nombre: nombre,
+                    apellido: apellido,
+                    fechaNacimiento: fechaNacimiento,
+                    paisOrigen: paisOrigen
+                };
+            }
+
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(nuevaPersona)
+            };
+
+            try {
+                const response = await fetch('https://examenesutn.vercel.app/api/PersonaCiudadanoExtranjero', options);
+                ocultarSpinner();
+
+                if (response.status === 200) {
+                    const data = await response.json();
+                    nuevaPersona.id = data.id;
+                    listaPersonas.push(nuevaPersona);
+                    actualizarTabla();
+                    ocultarFormularioABM();
+                } else {
+                    const errorText = await response.text();
+                    throw new Error(`Error del servidor: ${errorText}`);
+                    alert("Error al realizar el alta");
+                }
+            } catch (error) {
+                ocultarSpinner();
+                alert(error.message);
+                ocultarFormularioABM();
+                throw error;
+            }
+        }
+
+
+
+        function mostrarCampos() {
+            const tipo = document.getElementById('selectTipo').value;
+            const camposEmpleado = document.getElementById('camposCiudadano');
+            const camposCliente = document.getElementById('camposExtranjero');
+            
+            if (tipo === 'ciudadanoABM') {
+                camposEmpleado.style.display = 'block';
+                camposCliente.style.display = 'none';
+            } else if (tipo === 'extranjeroABM') {
+                camposEmpleado.style.display = 'none';
+                camposCliente.style.display = 'block';
+            }
+        }
+
+        function validarCampos() {
+            var nombre = document.getElementById("nombreABM").value;
+            var apellido = document.getElementById("apellidoABM").value;
+            var fechaNacimiento = document.getElementById("fechaNacimientoABM").value;
+            var paisOrigen = document.getElementById("paisOrigenABM").value;
+            var dni = document.getElementById("dniABM").value;
+            var select = document.getElementById("selectTipo").value;
+            
+            if (!esStringValido(nombre)) {
+                alert("Por favor, ingrese un valor correcto");
+                return false;
+            }
+            
+            if (!esStringValido(apellido)) {
+                alert("Por favor, ingrese un valor correcto");
+                return false;
+            }
+
+            if(!verificarFechaNacimiento(fechaNacimiento)){
+                alert("Por favor, ingrese un valor correcto");
+                return false;
+            }
+
+            if(select.value == "extranjeroABM"){
+                if(!esStringValido(paisOrigen)){
+                alert("Por favor, ingrese un valor correcto");
+                return false;
+                }
+            }
+            else{
+                if(!verificarDNI(dni)){
+                alert("Por favor, ingrese un valor correcto");
+                return false;
+                }
+            }
+            
+            return true;
+        }
+
+        function esStringValido(cadena) {
+            var letras = /^[A-Za-z]+$/;
+            
+            return cadena.match(letras);
+        }
+
+
+        function abrirFormularioABMConCampos(index,$tipoOperacion) {
+            const persona = listaPersonas[index];
+            const select = document.getElementById('selectTipo');
+            select.disabled = true; 
+
+            // Llenar el formulario ABM con los datos de la persona seleccionada
+            document.getElementById('idABM').value = persona.id;
+            document.getElementById('nombreABM').value = persona.nombre;
+            document.getElementById('apellidoABM').value = persona.apellido;
+            document.getElementById('fechaNacimientoABM').value = persona.fechaNacimiento;
+
+            if (persona.dni !== undefined) {
+                // Es un Ciudadano
+                document.getElementById('selectTipo').value = 'ciudadanoABM';
+                document.getElementById('dniABM').value = persona.dni;
+                mostrarCampos('ciudadanoABM');
+            } else if (persona.paisOrigen !== undefined) {
+                // Es un Extranjero
+                document.getElementById('selectTipo').value = 'extranjeroABM';
+                document.getElementById('paisOrigenABM').value = persona.paisOrigen;
+                mostrarCampos('extranjeroABM');
+            }
+
+            ocultarFormularioLista($tipoOperacion);
+        }
+
+        function actualizarElementoEnLista(id, newData) {
+            // Buscar el elemento en listaPersonas por su ID y actualizarlo
+            idNumerico = parseInt(id,10);
+            const index = listaPersonas.findIndex(persona => persona.id === idNumerico);
+            console.log(typeof(idNumerico));
+            
+            if (index !== -1) {
+                listaPersonas[index] = { ...listaPersonas[index], ...newData };
+            } else {
+                console.error(`No se encontró el elemento con ID ${id} en listaPersonas.`);
+            }
+        }
+
+        function ejecutarAccion() {
+            const tituloFormulario = document.getElementById('formTitulo').textContent;
+            switch (tituloFormulario) {
+                case 'Alta':
+                    Alta();
+                    break;
+                case 'Modificar':
+                    Modificar();
+                    break;
+                case 'Eliminar':
+                    Eliminar();
+                    break;
+                default:
+                    console.error('Accion no reconocida.');
+                    break;
+            }
+        }
+
+
+        function verificarFechaNacimiento(fecha) {
+
+            // Convertir la fecha a entero
+            const fechaNumero = parseInt(fecha);
+
+            // Verificar si es un número entero
+            if (typeof fechaNumero !== 'number' || isNaN(fechaNumero)) {
+                return false;
+            }
+
+            // Expresión regular para el formato AAAAMMDD
+            const formatoFechaRegex = /^\d{4}\d{2}\d{2}$/;
+
+            // Validar la fecha con la expresión regular
+            if (!formatoFechaRegex.test(fecha)) {
+                return false;
+            }
+
+            // Separar la fecha en partes (año, mes, día)
+            const partesFecha = fecha.split('');
+            const año = parseInt(partesFecha[0] + partesFecha[1] + partesFecha[2] + partesFecha[3]);
+            const mes = parseInt(partesFecha[4] + partesFecha[5]);
+            const dia = parseInt(partesFecha[6] + partesFecha[7]);
+
+            // Validar el rango de valores para mes y día
+            if (mes < 1 || mes > 12 || dia < 1 || dia > 31) {
+                return false;
+            }
+
+            // Validar si el día es válido para el mes y año
+            if (!validarDiaMesAño(año, mes, dia)) {
+                return false;
+            }
+
+            // Si todas las validaciones pasan, la fecha es válida
+                return true;
+            }
+
+        // Función auxiliar para validar si un día es válido para un mes y año específicos
+        function validarDiaMesAño(año, mes, dia) {
+
+            // Considerar días de febrero en años bisiestos
+            if (mes === 2 && esBisiesto(año) && dia > 29) {
+                return false;
+            }
+
+            // Validar días máximos según el mes
+            const diasMes = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            return dia <= diasMes[mes - 1];
+        }
+
+        // Función auxiliar para determinar si un año es bisiesto
+        function esBisiesto(año) {
+
+            return (año % 4 === 0 && año % 100 !== 0) || año % 400 === 0;
+        }
+
+
+        function verificarDNI(dni) {
+            // Validar la longitud del DNI (debe tener 9 dígitos)
+            if (dni.length !== 8) {
+                return false;
+            }
+
+            // Verificar que todos los caracteres sean números
+            for (let i = 0; i < dni.length; i++) {
+                if (isNaN(dni[i])) {
+                    return false;
+                }
+            }
+
+            // Convertir el DNI a un número entero
+            const dniNumero = parseInt(dni);
+
+            // Si todas las validaciones pasan, el DNI es válido
+            return true;
+        }
+
+
+        function Modificar() {
+            const id = document.getElementById('idABM').value;
+            const nombre = document.getElementById('nombreABM').value;
+            const apellido = document.getElementById('apellidoABM').value;
+            const fechaNacimiento = document.getElementById('fechaNacimientoABM').value;
+            const dni = document.getElementById('dniABM').value;
+            const idNumerico = parseInt(id, 10);
+            const fechaNacimientoNumerico = parseInt(fechaNacimiento, 10);
+            let body = { id: idNumerico, nombre: nombre, apellido: apellido, fechaNacimiento: fechaNacimientoNumerico };
+
+            if (document.getElementById('camposCiudadano').style.display === 'block') {
+                body.dni = parseInt(dni, 10);
+            } else if (document.getElementById('camposExtranjero').style.display === 'block') {
+                body.paisOrigen = document.getElementById('paisOrigenABM').value;
+            }
+
+            mostrarSpinner();
+
+            fetch('https://examenesutn.vercel.app/api/PersonaCiudadanoExtranjero', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    actualizarElementoEnLista(id, body);
+                    actualizarTabla();
+                    ocultarFormularioABM();
+                } else {
+                    throw new Error('Error del servidor');
+                }
+            })
+            .catch(error => {
+                console.error('Error al modificar el elemento:', error);
+                alert('Hubo un problema al modificar el elemento. Intente nuevamente.');
+                ocultarFormularioABM();
+            })
+            .finally(() => {
+                ocultarSpinner();
+            });
+        }
+
+
+
+
+        function Eliminar() {
+            const id = document.getElementById('idABM').value;
+            const idNumerico = parseInt(id, 10);
+
+            mostrarSpinner();
+
+            const body = { id: idNumerico };
+
+            fetch(`https://examenesutn.vercel.app/api/PersonaCiudadanoExtranjero`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    eliminarElementoDeLista(idNumerico);
+                    actualizarTabla();
+                    ocultarSpinner();
+                    ocultarFormularioABM();
+                } else {
+                    throw new Error('Error del servidor');
+                }
+            })
+            .catch(error => {
+                console.error('Error al eliminar el elemento:', error);
+                alert('Hubo un problema al eliminar el elemento. Intente nuevamente.');
+            });
+        }
+
+
+        function eliminarElementoDeLista(id) {
+            const index = listaPersonas.findIndex(persona => persona.id === id);
+            if (index !== -1) {
+                listaPersonas.splice(index, 1);
+            } else {
+                console.error(`No se encontró el elemento con ID ${id} en listaPersonas.`);
+            }
+        }
+
+        function limpiarFormulario() {
+            const select = document.getElementById('selectTipo');
+            select.disabled = false; 
+            // Obtener todos los elementos de input dentro del formulario
+            const inputs = document.querySelectorAll('#formABM input');
+
+            // Obtener el select dentro del formulario
+            const selectTipo = document.getElementById('selectTipo');
+
+            // Limpiar el valor de cada input
+            inputs.forEach(input => {
+                input.value = '';
+            });
+
+            // Reiniciar el select a la opción por defecto (Ciudadano)
+            selectTipo.value = 'ciudadanoABM';
+
+            mostrarCampos();
+        }
+    </script>
+</body>
+</html>
